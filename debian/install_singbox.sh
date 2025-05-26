@@ -1,50 +1,51 @@
 #!/bin/bash
 
-# 定义颜色
+# Определение цветов
 CYAN='\033[0;36m'
 RED='\033[0;31m'
-NC='\033[0m' # 无颜色
+NC='\033[0m' # Без цвета
 
-# 检查 sing-box 是否已安装
+# Проверка, установлен ли sing-box
 if command -v sing-box &> /dev/null; then
-    echo -e "${CYAN}sing-box 已安装，跳过安装步骤${NC}"
+    echo -e "${CYAN}sing-box уже установлен, пропускаем этап установки${NC}"
 else
-    # 添加官方 GPG 密钥和仓库
+    # Добавление официального GPG ключа и репозитория
     sudo mkdir -p /etc/apt/keyrings
     sudo curl -fsSL https://sing-box.app/gpg.key -o /etc/apt/keyrings/sagernet.asc
     sudo chmod a+r /etc/apt/keyrings/sagernet.asc
     echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/sagernet.asc] https://deb.sagernet.org/ * *" | sudo tee /etc/apt/sources.list.d/sagernet.list > /dev/null
 
-    # 始终更新包列表
-    echo "正在更新包列表，请稍候..."
+    # Обновление списка пакетов
+    echo "Обновляем список пакетов, пожалуйста, подождите..."
     sudo apt-get update -qq > /dev/null 2>&1
 
-    # 选择安装稳定版或测试版
+    # Выбор версии для установки: стабильная или бета
     while true; do
-        read -rp "请选择安装版本(1: 稳定版, 2: 测试版): " version_choice
+        read -rp "Выберите версию для установки (1: стабильная, 2: бета): " version_choice
         case $version_choice in
             1)
-                echo "安装稳定版..."
+                echo "Устанавливаем стабильную версию..."
                 sudo apt-get install sing-box -yq > /dev/null 2>&1
-                echo "安装已完成"
+                echo "Установка завершена"
                 break
                 ;;
             2)
-                echo "安装测试版..."
+                echo "Устанавливаем бета-версию..."
                 sudo apt-get install sing-box-beta -yq > /dev/null 2>&1
-                echo "安装已完成"
+                echo "Установка завершена"
                 break
                 ;;
             *)
-                echo -e "${RED}无效的选择，请输入 1 或 2。${NC}"
+                echo -e "${RED}Неверный выбор, пожалуйста, введите 1 или 2.${NC}"
                 ;;
         esac
     done
 
+    # Проверка успешности установки
     if command -v sing-box &> /dev/null; then
         sing_box_version=$(sing-box version | grep 'sing-box version' | awk '{print $3}')
-        echo -e "${CYAN}sing-box 安装成功，版本：${NC} $sing_box_version"
+        echo -e "${CYAN}sing-box успешно установлен, версия: ${NC} $sing_box_version"
     else
-        echo -e "${RED}sing-box 安装失败，请检查日志或网络配置${NC}"
+        echo -e "${RED}Установка sing-box не удалась, проверьте логи или настройки сети${NC}"
     fi
 fi
