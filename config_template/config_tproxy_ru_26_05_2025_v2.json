@@ -44,10 +44,10 @@
 
   "outbounds": [
     { "tag": "🚀 Node Selector", "type": "selector", "outbounds": ["🐸 Manual Switch", "➡️ Direct Connection"] },
-    { "tag": "🧩 Сustom list", "type": "selector", "outbounds": ["🚀 Node Selection", "🐸 Manual Switch", "➡️ Direct Connection", "🛰️ Proxy Switch"] },
-    { "tag": "🎙️ Discord", "type": "selector", "outbounds": ["🚀 Node Selection", "🐸 Manual Switch", "➡️ Direct Connection", "🛰️ Proxy Switch"] },
-    { "tag": "🌐 Meta", "type": "selector", "outbounds": ["🚀 Node Selection", "🐸 Manual Switch", "➡️ Direct Connection"] },
-    { "tag": "🎮 Steam", "type": "selector", "outbounds": ["🚀 Node Selection", "🐸 Manual Switch", "➡️ Direct Connection"] },
+    { "tag": "🧩 Сustom list", "type": "selector", "outbounds": ["🚀 Node Selector", "🐸 Manual Switch", "➡️ Direct Connection", "🛰️ Proxy Switch"] },
+    { "tag": "🎙️ Discord", "type": "selector", "outbounds": ["🚀 Node Selector", "🐸 Manual Switch", "➡️ Direct Connection", "🛰️ Proxy Switch"] },
+    { "tag": "🌐 Meta", "type": "selector", "outbounds": ["🚀 Node Selector", "🐸 Manual Switch", "➡️ Direct Connection"] },
+    { "tag": "🎮 Steam", "type": "selector", "outbounds": ["🚀 Node Selector", "🐸 Manual Switch", "➡️ Direct Connection"] },
     { "tag": "📹 YouTube", "type": "selector", "outbounds": ["🚀 Node Selector", "🐸 Manual Switch", "➡️ Direct Connection"] },
     { "tag": "🤖 OpenAI", "type": "selector", "outbounds": ["🚀 Node Selector", "🐸 Manual Switch", "➡️ Direct Connection"] },
     { "tag": "🍀 Google", "type": "selector", "outbounds": ["🚀 Node Selector", "🐸 Manual Switch", "➡️ Direct Connection"] },
