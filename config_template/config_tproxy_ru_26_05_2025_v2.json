@@ -60,7 +60,7 @@
     { "tag": "📲 Telegram", "type": "selector", "outbounds": ["🚀 Node Selector", "🐸 Manual Switch", "➡️ Direct Connection"] },
     { "tag": "🍏 Apple", "type": "selector", "outbounds": ["🚀 Node Selector", "🐸 Manual Switch", "➡️ Direct Connection"] },
     { "tag": "🐸 Manual Switch", "type": "selector", "outbounds": ["{all}"] },
-    { "tag": "🛰️ Proxy Switch", "type": "selector", "outbounds": ["{all}"] },
+    { "tag": "🛰️ Proxy Switch", "type": "selector", "outbounds": ["{all}"] }
   ],
 
   "route": {
