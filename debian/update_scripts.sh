@@ -1,81 +1,81 @@
 #!/bin/bash
 
-# 定义颜色
+# Определение цветов
 CYAN='\033[0;36m'
 GREEN='\033[0;32m'
 RED='\033[0;31m'
-NC='\033[0m' # 无颜色
+NC='\033[0m' # Без цвета
 
-# 脚本下载目录
+# Каталог для скриптов
 SCRIPT_DIR="/etc/sing-box/scripts"
 TEMP_DIR="/tmp/sing-box"
 
-# 脚本的URL基础路径
+# Базовый URL для скачивания скриптов
 BASE_URL="https://gh-proxy.com/https://raw.githubusercontent.com/qljsyph/sbshell/refs/heads/main/debian"
-                               
-# 初始下载菜单脚本的URL
+
+# URL скрипта меню для первичной загрузки
 MENU_SCRIPT_URL="$BASE_URL/menu.sh"
 
-# 提示用户正在检测版本
-echo -e "${CYAN}正在检测版本，请耐心等待...${NC}"
+# Сообщение о проверке версии
+echo -e "${CYAN}Проверка версии, пожалуйста, подождите...${NC}"
 
-# 确保脚本目录和临时目录存在并设置权限
+# Создание каталогов и установка прав
 sudo mkdir -p "$SCRIPT_DIR"
 sudo mkdir -p "$TEMP_DIR"
 sudo chown "$(whoami)":"$(whoami)" "$SCRIPT_DIR"
 sudo chown "$(whoami)":"$(whoami)" "$TEMP_DIR"
 
-# 下载远程脚本到临时目录
+# Загрузка удалённого скрипта в временный каталог
 wget -q -O "$TEMP_DIR/menu.sh" "$MENU_SCRIPT_URL"
 
-# 检查下载是否成功
+# Проверка успешности загрузки
 if ! [ -f "$TEMP_DIR/menu.sh" ]; then
-    echo -e "${RED}下载远程脚本失败，请检查网络连接。${NC}"
+    echo -e "${RED}Не удалось скачать удалённый скрипт, проверьте подключение к сети.${NC}"
     exit 1
 fi
 
-# 获取本地和远程脚本版本
+# Получение версии локального и удалённого скрипта
 LOCAL_VERSION=$(grep '^# 版本:' "$SCRIPT_DIR/menu.sh" | awk '{print $3}')
 REMOTE_VERSION=$(grep '^# 版本:' "$TEMP_DIR/menu.sh" | awk '{print $3}')
 
-# 检查远程版本是否为空
+# Проверка, пустая ли версия удалённого скрипта
 if [ -z "$REMOTE_VERSION" ]; then
-    echo -e "${RED}远程版本获取失败，请检查网络连接。${NC}"
-    read -rp "是否重试？(y/n): " retry_choice
+    echo -e "${RED}Не удалось получить версию удалённого скрипта, проверьте подключение к сети.${NC}"
+    read -rp "Повторить попытку? (y/n): " retry_choice
     if [[ "$retry_choice" =~ ^[Yy]$ ]]; then
         wget -q -O "$TEMP_DIR/menu.sh" "$MENU_SCRIPT_URL"
         REMOTE_VERSION=$(grep '^# 版本:' "$TEMP_DIR/menu.sh" | awk '{print $3}')
         if [ -z "$REMOTE_VERSION" ]; then
-            echo -e "${RED}远程版本获取失败，请检查网络连接后再试。返回菜单。${NC}"
+            echo -e "${RED}Не удалось получить версию удалённого скрипта, проверьте подключение к сети и попробуйте позже. Возврат в меню.${NC}"
             rm -rf "$TEMP_DIR"
             exit 1
         fi
     else
-        echo -e "${RED}请检查网络连接后再试。返回菜单。${NC}"
+        echo -e "${RED}Проверьте подключение к сети и попробуйте позже. Возврат в меню.${NC}"
         rm -rf "$TEMP_DIR"
         exit 1
     fi
 fi
 
-# 输出检测到的版本
-echo -e "${CYAN}检测到的版本：本地版本 $LOCAL_VERSION,远程版本 $REMOTE_VERSION${NC}"
+# Вывод обнаруженных версий
+echo -e "${CYAN}Обнаруженные версии: локальная $LOCAL_VERSION, удалённая $REMOTE_VERSION${NC}"
 
-# 比较版本号
+# Сравнение версий
 if [ "$LOCAL_VERSION" == "$REMOTE_VERSION" ]; then
-    echo -e "${GREEN}脚本版本为最新，无需升级。${NC}"
-    read -rp "是否强制更新？(y/n): " force_update
+    echo -e "${GREEN}Скрипт обновлён до последней версии, обновление не требуется.${NC}"
+    read -rp "Принудительно обновить? (y/n): " force_update
     if [[ "$force_update" =~ ^[Yy]$ ]]; then
-        echo -e "${CYAN}正在强制更新...${NC}"
+        echo -e "${CYAN}Выполняется принудительное обновление...${NC}"
     else
-        echo -e "${CYAN}返回菜单。${NC}"
+        echo -e "${CYAN}Возврат в меню.${NC}"
         rm -rf "$TEMP_DIR"
         exit 0
     fi
 else
-    echo -e "${RED}检测到新版本，准备升级。${NC}"
+    echo -e "${RED}Обнаружена новая версия, начинаем обновление.${NC}"
 fi
 
-# 脚本列表
+# Список скриптов для загрузки
 SCRIPTS=(
     "check_environment.sh"
     "set_network.sh"
@@ -99,7 +99,7 @@ SCRIPTS=(
     "menu.sh"
 )
 
-# 下载并设置单个脚本，带重试逻辑
+# Функция загрузки одного скрипта с повторными попытками
 download_script() {
     local SCRIPT="$1"
     local RETRIES=3
@@ -114,11 +114,11 @@ download_script() {
         fi
     done
 
-    echo -e "${RED}下载 $SCRIPT 失败，请检查网络连接。${NC}"
+    echo -e "${RED}Не удалось скачать $SCRIPT, проверьте подключение к сети.${NC}"
     return 1
 }
 
-# 并行下载脚本
+# Параллельная загрузка всех скриптов
 parallel_download_scripts() {
     local pids=()
     for SCRIPT in "${SCRIPTS[@]}"; do
@@ -131,54 +131,54 @@ parallel_download_scripts() {
     done
 }
 
-# 常规更新
-function regular_update() {
-    echo -e "${CYAN}正在清理缓存，请耐心等待...${NC}"
+# Обычное обновление
+regular_update() {
+    echo -e "${CYAN}Очистка кэша, пожалуйста, подождите...${NC}"
     rm -f "$SCRIPT_DIR"/*.sh
-    echo -e "${CYAN}正在进行常规更新，请耐心等待...${NC}"
+    echo -e "${CYAN}Выполняется обычное обновление, пожалуйста, подождите...${NC}"
     parallel_download_scripts
-    echo -e "${CYAN}脚本常规更新完成。${NC}"
+    echo -e "${CYAN}Обычное обновление скриптов завершено.${NC}"
 }
 
-# 重置更新
-function reset_update() {
-    echo -e "${RED}即将停止 sing-box 并重置所有内容，请稍候...${NC}"
+# Полный сброс и обновление
+reset_update() {
+    echo -e "${RED}Останавливаем sing-box и сбрасываем все настройки, пожалуйста, подождите...${NC}"
     sudo bash "$SCRIPT_DIR/clean_nft.sh"
     sudo rm -rf /etc/sing-box
-    echo -e "${CYAN}sing-box 文件夹已删除。${NC}"
-    echo -e "${CYAN}正在重新拉取脚本，请耐心等待...${NC}"
+    echo -e "${CYAN}Папка sing-box удалена.${NC}"
+    echo -e "${CYAN}Загрузка скриптов заново, пожалуйста, подождите...${NC}"
     bash <(curl -s "$MENU_SCRIPT_URL")
 }
 
-# 提示用户并确认选择
-echo -e "${CYAN}请选择更新方式：${NC}"
-echo -e "${GREEN}1. 常规更新${NC}"
-echo -e "${GREEN}2. 重置更新${NC}"
-read -rp "请选择操作: " update_choice
+# Запрос выбора пользователя
+echo -e "${CYAN}Выберите способ обновления:${NC}"
+echo -e "${GREEN}1. Обычное обновление${NC}"
+echo -e "${GREEN}2. Полный сброс и обновление${NC}"
+read -rp "Выберите действие: " update_choice
 
 case $update_choice in
     1)
-        echo -e "${RED}常规更新只更新脚本内容,再次执行菜单内容才会执行新脚本。${NC}"
-        read -rp "是否继续常规更新？(y/n): " confirm
+        echo -e "${RED}Обычное обновление обновляет только скрипты, новое меню выполнит обновленные скрипты.${NC}"
+        read -rp "Продолжить обычное обновление? (y/n): " confirm
         if [[ "$confirm" =~ ^[Yy]$ ]]; then
             regular_update
         else
-            echo -e "${CYAN}常规更新已取消。${NC}"
+            echo -e "${CYAN}Обычное обновление отменено.${NC}"
         fi
         ;;
     2)
-        echo -e "${RED}即将停止 sing-box 并重置所有内容,并初始化引导设置。${NC}"
-        read -rp "是否继续重置更新？(y/n): " confirm
+        echo -e "${RED}Будет остановлен sing-box и сброшены все настройки, затем выполнена инициализация.${NC}"
+        read -rp "Продолжить сброс и обновление? (y/n): " confirm
         if [[ "$confirm" =~ ^[Yy]$ ]]; then
             reset_update
         else
-            echo -e "${CYAN}重置更新已取消。${NC}"
+            echo -e "${CYAN}Сброс и обновление отменены.${NC}"
         fi
         ;;
     *)
-        echo -e "${RED}无效的选择。${NC}"
+        echo -e "${RED}Недопустимый выбор.${NC}"
         ;;
 esac
 
-# 清理临时目录
+# Очистка временной папки
 rm -rf "$TEMP_DIR"
