@@ -1,21 +1,22 @@
 #!/bin/bash
 
-UI_DIR="/etc/sing-box/ui"
-BACKUP_DIR="/tmp/sing-box/ui_backup"
-TEMP_DIR="/tmp/sing-box-ui"
+UI_DIR="/etc/sing-box/ui"                      # Папка с UI
+BACKUP_DIR="/tmp/sing-box/ui_backup"           # Папка для бэкапов UI
+TEMP_DIR="/tmp/sing-box-ui"                     # Временная папка для загрузки UI
 
+# URL для загрузки разных UI-панелей
 ZASHBOARD_URL="https://gh-proxy.com/https://github.com/Zephyruso/zashboard/archive/refs/heads/gh-pages.zip"
 METACUBEXD_URL="https://gh-proxy.com/https://github.com/MetaCubeX/metacubexd/archive/refs/heads/gh-pages.zip"
 YACD_URL="https://gh-proxy.com/https://github.com/MetaCubeX/Yacd-meta/archive/refs/heads/gh-pages.zip"
 
-# 创建备份目录
+# Создаем папки для бэкапов и временные папки
 mkdir -p "$BACKUP_DIR"
 mkdir -p "$TEMP_DIR"
 
-# 检查依赖并安装
+# Проверка и установка зависимости busybox
 check_and_install_dependencies() {
     if ! command -v busybox &> /dev/null; then
-        echo -e "\e[31mbusybox 未安装，正在安装...\e[0m"
+        echo -e "\e[31mbusybox не установлен, устанавливаю...\e[0m"
         sudo apt-get update
         sudo apt-get install -y busybox
         export PATH=$PATH:/bin/busybox
@@ -23,10 +24,12 @@ check_and_install_dependencies() {
     fi
 }
 
+# Распаковка архива через busybox
 unzip_with_busybox() {
     busybox unzip "$1" -d "$2" > /dev/null 2>&1
 }
 
+# Получение URL загрузки UI из конфигурационного файла
 get_download_url() {
     CONFIG_FILE="/etc/sing-box/config.json"
     DEFAULT_URL="https://gh-proxy.com/https://github.com/Zephyruso/zashboard/archive/refs/heads/gh-pages.zip"
@@ -39,95 +42,100 @@ get_download_url() {
     fi
 }
 
+# Создаем бэкап текущей UI папки и удаляем её
 backup_and_remove_ui() {
     if [ -d "$UI_DIR" ]; then
-        echo -e "备份当前ui文件夹..."
+        echo -e "Делаю резервную копию текущей папки ui..."
         mv "$UI_DIR" "$BACKUP_DIR/$(date +%Y%m%d%H%M%S)_ui"
-        echo -e "已备份至 $BACKUP_DIR"
+        echo -e "Резервная копия сохранена в $BACKUP_DIR"
     fi
 }
 
+# Загрузка и установка UI из архива
 download_and_process_ui() {
     local url="$1"
     local temp_file="$TEMP_DIR/ui.zip"
     
-    # 清理临时目录
+    # Чистим временную папку
     rm -rf "${TEMP_DIR:?}"/*
     
-    echo "正在下载面板..."
+    echo "Загрузка панели..."
     curl -L "$url" -o "$temp_file"
     if [ $? -ne 0 ]; then
-        echo -e "\e[31m下载失败,正在还原备份...\e[0m"
+        echo -e "\e[31mЗагрузка не удалась, восстанавливаю бэкап...\e[0m"
         [ -d "$BACKUP_DIR" ] && mv "$BACKUP_DIR/"* "$UI_DIR" 2>/dev/null
         return 1
     fi
 
-    # 解压文件
-    echo "解压中..."
+    # Распаковка архива
+    echo "Распаковка..."
     if unzip_with_busybox "$temp_file" "$TEMP_DIR"; then
-        # 确保目标目录存在
         mkdir -p "$UI_DIR"
         rm -rf "${UI_DIR:?}"/*
         mv "$TEMP_DIR"/*/* "$UI_DIR"
-        echo -e "\e[32m面板安装完成\e[0m"
+        echo -e "\e[32mУстановка панели завершена\e[0m"
         return 0
     else
-        echo -e "\e[31m解压失败,正在还原备份...\e[0m"
+        echo -e "\e[31mРаспаковка не удалась, восстанавливаю бэкап...\e[0m"
         [ -d "$BACKUP_DIR" ] && mv "$BACKUP_DIR/"* "$UI_DIR" 2>/dev/null
         return 1
     fi
 }
 
+# Установка UI по умолчанию (из конфигурации)
 install_default_ui() {
-    echo "正在安装默认ui面板..."
+    echo "Установка UI по умолчанию..."
     DOWNLOAD_URL=$(get_download_url)
     backup_and_remove_ui
     download_and_process_ui "$DOWNLOAD_URL"
 }
 
+# Установка выбранного пользователем UI
 install_selected_ui() {
     local url="$1"
     backup_and_remove_ui
     download_and_process_ui "$url"
 }
 
+# Проверка, установлен ли UI и не пустая ли папка
 check_ui() {
     if [ -d "$UI_DIR" ] && [ "$(ls -A "$UI_DIR")" ]; then
-        echo -e "\e[32mui面板已安装\e[0m"
+        echo -e "\e[32mUI панель установлена\e[0m"
     else
-        echo -e "\e[31mui面板未安装或为空\e[0m"
+        echo -e "\e[31mUI панель не установлена или папка пустая\e[0m"
     fi
 }
 
+# Настройка автоматического обновления UI через cron
 setup_auto_update_ui() {
     local schedule_choice
     while true; do
-        echo "请选择自动更新频率："
-        echo "1. 每周一"
-        echo "2. 每月1号"
-        read -rp "请输入选项(1/2, 默认为1): " schedule_choice
+        echo "Выберите частоту автоматического обновления:"
+        echo "1. Каждый понедельник"
+        echo "2. Первое число каждого месяца"
+        read -rp "Введите опцию (1/2, по умолчанию 1): " schedule_choice
         schedule_choice=${schedule_choice:-1}
 
         if [[ "$schedule_choice" =~ ^[12]$ ]]; then
             break
         else
-            echo -e "\e[31m输入无效,请输入1或2。\e[0m"
+            echo -e "\e[31mНеверный ввод, введите 1 или 2.\e[0m"
         fi
     done
 
     if crontab -l 2>/dev/null | grep -q '/etc/sing-box/update-ui.sh'; then
-        echo -e "\e[31m检测到已有自动更新任务。\e[0m"
-        read -rp "是否重新设置自动更新任务？(y/n): " confirm_reset
+        echo -e "\e[31mОбнаружена уже существующая задача авт обновления.\e[0m"
+        read -rp "Перезаписать её? (y/n): " confirm_reset
         if [[ "$confirm_reset" =~ ^[Yy]$ ]]; then
             crontab -l 2>/dev/null | grep -v '/etc/sing-box/update-ui.sh' | crontab -
-            echo "已删除旧的自动更新任务。"
+            echo "Старая задача удалена."
         else
-            echo -e "\e[36m保持已有的自动更新任务。返回菜单。\e[0m"
+            echo -e "\e[36mСохраняю текущую задачу. Возврат в меню.\e[0m"
             return
         fi
     fi
 
-    # 创建自动更新脚本
+    # Создание скрипта для обновления UI
     cat > /etc/sing-box/update-ui.sh <<EOF
 #!/bin/bash
 
@@ -140,23 +148,20 @@ TEMP_DIR="/tmp/sing-box-ui"
 UI_DIR="/etc/sing-box/ui"
 BACKUP_DIR="/tmp/sing-box/ui_backup"
 
-# 创建备份目录
 mkdir -p "\$BACKUP_DIR"
 mkdir -p "\$TEMP_DIR"
 
-# 备份当前ui文件夹
 if [ -d "\$UI_DIR" ]; then
     mv "\$UI_DIR" "\$BACKUP_DIR/\$(date +%Y%m%d%H%M%S)_ui"
 fi
 
-# 下载并解压新ui
 curl -L "\$URL" -o "\$TEMP_DIR/ui.zip"
 if busybox unzip "\$TEMP_DIR/ui.zip" -d "\$TEMP_DIR"; then
     mkdir -p "\$UI_DIR"
     rm -rf "\${UI_DIR:?}"/*
     mv "\$TEMP_DIR"/*/* "\$UI_DIR"
 else
-    echo "解压失败，正在还原备份..."
+    echo "Распаковка не удалась, восстанавливаю бэкап..."
     [ -d "\$BACKUP_DIR" ] && mv "\$BACKUP_DIR/"* "\$UI_DIR" 2>/dev/null
 fi
 
@@ -166,41 +171,42 @@ EOF
 
     if [ "$schedule_choice" -eq 1 ]; then
         (crontab -l 2>/dev/null; echo "0 0 * * 1 /etc/sing-box/update-ui.sh") | crontab -
-        echo -e "\e[32m定时更新任务已设置,每周一执行一次\e[0m"
+        echo -e "\e[32mЗадача автоматического обновления установлена, выполняется по понедельникам\e[0m"
     else
         (crontab -l 2>/dev/null; echo "0 0 1 * * /etc/sing-box/update-ui.sh") | crontab -
-        echo -e "\e[32m定时更新任务已设置,每月1号执行一次\e[0m"
+        echo -e "\e[32mЗадача автоматического обновления установлена, выполняется 1-го числа каждого месяца\e[0m"
     fi
 
     systemctl restart cron
 }
 
+# Главное меню для управления UI
 update_ui() {
-    check_and_install_dependencies  # 检查并安装依赖
+    check_and_install_dependencies  # Проверка и установка зависимостей
     while true; do
-        echo "请选择功能："
-        echo "1. 默认ui(依据配置文件）"
-        echo "2. 安装/更新自选ui"
-        echo "3. 检查是否存在ui面板"
-        echo "4. 设置定时自动更新面板"
-        read -r -p "请输入选项(1/2/3/4)或按回车键退出: " choice
+        echo "Выберите действие:"
+        echo "1. Установить UI по умолчанию (из конфигурации)"
+        echo "2. Установить/обновить выбранный UI"
+        echo "3. Проверить наличие UI панели"
+        echo "4. Настроить автоматическое обновление UI"
+        read -r -p "Введите опцию (1/2/3/4) или нажмите Enter для выхода: " choice
 
         if [ -z "$choice" ]; then
-            echo "退出程序。"
+            echo "Выход из программы."
             exit 0
         fi
 
         case "$choice" in
             1)
                 install_default_ui
-                exit 0  # 更新结束后退出菜单
+                exit 0
                 ;;
             2)
-                echo "请选择面板安装："
-                echo "1. zashboard面板"
-                echo "2. metacubexd面板"
-                echo "3. yacd面板"
-                read -r -p "请输入选项(1/2/3): " ui_choice
+                echo "Выберите панель для установки:"
+                echo "1. Zashboard"
+                echo "2. Metacubexd"
+                echo "3. Yacd"
+                read -r -p "Введите опцию (1/2/3): " ui_choice
 
                 case "$ui_choice" in
                     1)
@@ -213,10 +219,10 @@ update_ui() {
                         install_selected_ui "$YACD_URL"
                         ;;
                     *)
-                        echo -e "\e[31m无效选项,返回上级菜单。\e[0m"
+                        echo -e "\e[31mНеверный выбор, возвращаюсь в меню.\e[0m"
                         ;;
                 esac
-                exit 0  # 更新结束后退出菜单
+                exit 0
                 ;;
             3)
                 check_ui
@@ -225,7 +231,7 @@ update_ui() {
                 setup_auto_update_ui
                 ;;
             *)
-                echo -e "\e[31m无效选项,返回主菜单\e[0m"
+                echo -e "\e[31mНеверный выбор, возвращаюсь в главное меню\e[0m"
                 ;;
         esac
     done
