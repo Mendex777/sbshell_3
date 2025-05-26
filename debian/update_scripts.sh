@@ -11,7 +11,7 @@ SCRIPT_DIR="/etc/sing-box/scripts"
 TEMP_DIR="/tmp/sing-box"
 
 # Базовый URL для скачивания скриптов
-BASE_URL="https://gh-proxy.com/https://raw.githubusercontent.com/qljsyph/sbshell/refs/heads/main/debian"
+BASE_URL="https://raw.githubusercontent.com/Mendex777/sbshell2/refs/heads/main/debian"
 
 # URL скрипта меню для первичной загрузки
 MENU_SCRIPT_URL="$BASE_URL/menu.sh"
