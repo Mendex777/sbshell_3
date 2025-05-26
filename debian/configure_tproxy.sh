@@ -1,80 +1,81 @@
 #!/bin/sh
 
-# 配置参数
-TPROXY_PORT=7895  # 与 sing-box 中定义的一致
-ROUTING_MARK=666  # 与 sing-box 中定义的一致
+# Параметры конфигурации
+TPROXY_PORT=7895           # Должен совпадать с настройками sing-box
+ROUTING_MARK=666          # Должен совпадать с настройками sing-box
 PROXY_FWMARK=1
 PROXY_ROUTE_TABLE=100
-INTERFACE=$(ip route show default | awk '/default/ {print $5; exit}')
+INTERFACE=$(ip route show default | awk '/default/ {print $5; exit}')  # Получаем интерфейс по умолчанию
 
-# 保留 IP 地址集合
+# Набор зарезервированных IP-адресов
 ReservedIP4='{ 127.0.0.0/8, 10.0.0.0/8, 100.64.0.0/10, 169.254.0.0/16, 172.16.0.0/12, 192.0.0.0/24, 192.0.2.0/24, 198.51.100.0/24, 192.88.99.0/24, 192.168.0.0/16, 203.0.113.0/24, 224.0.0.0/4, 240.0.0.0/4, 255.255.255.255/32 }'
-CustomBypassIP='{ 192.168.0.0/16, 10.0.0.0/8 }'  # 自定义绕过的 IP 地址集合
+CustomBypassIP='{ 192.168.0.0/16, 10.0.0.0/8 }'  # Пользовательский список IP для обхода
 
-# 读取当前模式
+# Считываем текущий режим работы sing-box
 MODE=$(grep -oP '(?<=^MODE=).*' /etc/sing-box/mode.conf)
 
-# 检查指定路由表是否存在
+# Проверка существования таблицы маршрутизации
 check_route_exists() {
     ip route show table "$1" >/dev/null 2>&1
     return $?
 }
 
-# 创建路由表，如果不存在的话
+# Создание таблицы маршрутизации, если её нет
 create_route_table_if_not_exists() {
     if ! check_route_exists "$PROXY_ROUTE_TABLE"; then
-        echo "路由表不存在，正在创建..."
-        ip route add local default dev "$INTERFACE" table "$PROXY_ROUTE_TABLE" || { echo "创建路由表失败"; exit 1; }
+        echo "Таблица маршрутизации не найдена, создаём..."
+        ip route add local default dev "$INTERFACE" table "$PROXY_ROUTE_TABLE" || { echo "Ошибка при создании таблицы маршрутизации"; exit 1; }
     fi
 }
 
-# 等待 FIB 表加载完成
+# Ожидание загрузки таблицы маршрутизации (FIB)
 wait_for_fib_table() {
     i=1
     while [ $i -le 10 ]; do
         if ip route show table "$PROXY_ROUTE_TABLE" >/dev/null 2>&1; then
             return 0
         fi
-        echo "等待 FIB 表加载中，等待 $i 秒..."
+        echo "Ожидание загрузки таблицы FIB, ждём $i секунд..."
         i=$((i + 1))
+        sleep 1
     done
-    echo "FIB 表加载失败，超出最大重试次数"
+    echo "Не удалось загрузить таблицу FIB, превышено максимальное число попыток"
     return 1
 }
 
-# 清理现有 sing-box 防火墙规则
+# Очистка правил firewall sing-box
 clearSingboxRules() {
     nft list table inet sing-box >/dev/null 2>&1 && nft delete table inet sing-box
     ip rule del fwmark $PROXY_FWMARK lookup $PROXY_ROUTE_TABLE 2>/dev/null
     ip route del local default dev "${INTERFACE}" table $PROXY_ROUTE_TABLE 2>/dev/null
-    echo "清理 sing-box 相关的防火墙规则"
+    echo "Очистка правил firewall sing-box завершена"
 }
 
-# 仅在 TProxy 模式下应用防火墙规则
+# Применяем правила firewall только в режиме TProxy
 if [ "$MODE" = "TProxy" ]; then
-    echo "应用 TProxy 模式下的防火墙规则..."
+    echo "Применяем правила firewall для режима TProxy..."
 
-    # 创建并确保路由表存在
+    # Создаём таблицу маршрутизации, если отсутствует
     create_route_table_if_not_exists
 
-    # 等待 FIB 表加载完成
+    # Ждём готовности таблицы маршрутизации
     if ! wait_for_fib_table; then
-        echo "FIB 表准备失败，退出脚本。"
+        echo "Таблица FIB не готова, выход из скрипта."
         exit 1
     fi
 
-    # 清理现有规则
+    # Очистка старых правил
     clearSingboxRules
 
-    # 设置 IP 规则和路由
+    # Добавляем правила IP и маршруты
     ip -f inet rule add fwmark $PROXY_FWMARK lookup $PROXY_ROUTE_TABLE
     ip -f inet route add local default dev "${INTERFACE}" table $PROXY_ROUTE_TABLE
     sysctl -w net.ipv4.ip_forward=1 > /dev/null
 
-    # 确保目录存在
+    # Создаём каталог для правил nftables, если его нет
     sudo mkdir -p /etc/sing-box/nft
 
-    # 设置 TProxy 模式下的 nftables 规则
+    # Записываем правила nftables в файл
     cat > /etc/sing-box/nft/nftables.conf <<EOF
 table inet sing-box {
     set RESERVED_IPSET {
@@ -87,65 +88,66 @@ table inet sing-box {
     chain prerouting_tproxy {
         type filter hook prerouting priority mangle; policy accept;
 
-        # DNS 请求重定向到本地 TProxy 端口
+        # Перенаправление DNS запросов на локальный порт TProxy
         meta l4proto { tcp, udp } th dport 53 tproxy to :$TPROXY_PORT accept
 
-        # 自定义绕过地址
+        # Обход пользовательских IP
         ip daddr $CustomBypassIP accept
 
-        # 拒绝访问本地 TProxy 端口
+        # Запрет доступа к локальному порту TProxy
         fib daddr type local meta l4proto { tcp, udp } th dport $TPROXY_PORT reject with icmpx type host-unreachable
 
-        # 本地地址绕过
+        # Обход локальных адресов
         fib daddr type local accept
 
-        # 保留地址绕过
+        # Обход зарезервированных IP
         ip daddr @RESERVED_IPSET accept
 
-        # 优化已建立的 TCP 连接
+        # Оптимизация для установленных TCP-соединений
         meta l4proto tcp socket transparent 1 meta mark set $PROXY_FWMARK accept
 
-        # 重定向剩余流量到 TProxy 端口并设置标记
+        # Перенаправление остального трафика на TProxy с установкой метки
         meta l4proto { tcp, udp } tproxy to :$TPROXY_PORT meta mark set $PROXY_FWMARK
     }
 
     chain output_tproxy {
         type route hook output priority mangle; policy accept;
 
-        # 放行本地回环接口流量
+        # Пропуск трафика локального loopback
         meta oifname "lo" accept
 
-        # 本地 sing-box 发出的流量绕过
+        # Обход трафика, исходящего от sing-box
         meta mark $ROUTING_MARK accept
 
-        # DNS 请求标记
+        # Маркировка DNS трафика
         meta l4proto { tcp, udp } th dport 53 meta mark set $PROXY_FWMARK
 
-        # 绕过 NBNS 流量
+        # Обход NBNS трафика
         udp dport { netbios-ns, netbios-dgm, netbios-ssn } accept
 
-        # 自定义绕过地址
+        # Обход пользовательских IP
         ip daddr $CustomBypassIP accept
 
-        # 本地地址绕过
+        # Обход локальных адресов
         fib daddr type local accept
 
-        # 保留地址绕过
+        # Обход зарезервированных IP
         ip daddr @RESERVED_IPSET accept
 
-        # 标记并重定向剩余流量
+        # Маркировка и перенаправление остального трафика
         meta l4proto { tcp, udp } meta mark set $PROXY_FWMARK
     }
 }
 EOF
 
-    # 应用防火墙规则和 IP 路由
+    # Применяем правила firewall
     nft -f /etc/sing-box/nft/nftables.conf
 
-    # 持久化防火墙规则
+    # Сохраняем правила для постоянного использования
     nft list ruleset > /etc/nftables.conf
 
-    echo "TProxy 模式的防火墙规则已应用。"
+    echo "Правила firewall для режима TProxy успешно применены."
 else
-    echo "当前模式为 TUN 模式，不需要应用防火墙规则。" >/dev/null 2>&1
+    # Если режим не TProxy, не применяем правила (например, TUN режим)
+    echo "Текущий режим не TProxy, правила firewall не применяются." >/dev/null 2>&1
 fi
