@@ -1,41 +1,41 @@
 #!/bin/bash
 
-# 定义颜色
+# Определение цветов
 CYAN='\033[0;36m'
 GREEN='\033[0;32m'
 RED='\033[0;31m'
-NC='\033[0m' # 无颜色
+NC='\033[0m' # Без цвета
 
-# 脚本下载目录
+# Каталог для скриптов
 SCRIPT_DIR="/etc/sing-box/scripts"
 
-# 停止 sing-box 服务
+# Остановка службы sing-box
 stop_singbox() {
     sudo systemctl stop sing-box
 
     if ! systemctl is-active --quiet sing-box; then
-        echo -e "${GREEN}sing-box 已停止${NC}"
+        echo -e "${GREEN}sing-box остановлен${NC}"
 
-        # 提示用户确认是否清理防火墙规则
-        read -rp "是否清理防火墙规则？(y/n): " confirm_cleanup
+        # Запрос подтверждения очистки правил файрвола
+        read -rp "Очистить правила файрвола? (y/n): " confirm_cleanup
         if [[ "$confirm_cleanup" =~ ^[Yy]$ ]]; then
-            echo -e "${CYAN}执行清理防火墙规则...${NC}"
+            echo -e "${CYAN}Выполняется очистка правил файрвола...${NC}"
             bash "$SCRIPT_DIR/clean_nft.sh"
-            echo -e "${GREEN}防火墙规则清理完毕${NC}"
+            echo -e "${GREEN}Очистка правил файрвола завершена${NC}"
         else
-            echo -e "${CYAN}已取消清理防火墙规则。${NC}"
+            echo -e "${CYAN}Очистка правил файрвола отменена.${NC}"
         fi
 
     else
-        echo -e "${RED}停止 sing-box 失败，请检查日志${NC}"
+        echo -e "${RED}Не удалось остановить sing-box, проверьте логи${NC}"
     fi
 }
 
-# 提示用户确认是否停止
-read -rp "是否停止 sing-box?(y/n): " confirm_stop
+# Запрос подтверждения остановки у пользователя
+read -rp "Остановить sing-box? (y/n): " confirm_stop
 if [[ "$confirm_stop" =~ ^[Yy]$ ]]; then
     stop_singbox
 else
-    echo -e "${CYAN}已取消停止 sing-box。${NC}"
+    echo -e "${CYAN}Остановка sing-box отменена.${NC}"
     exit 0
 fi
