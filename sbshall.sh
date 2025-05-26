@@ -1,7 +1,7 @@
 #!/bin/bash
 # Определение URL для загрузки основного скрипта
-DEBIAN_MAIN_SCRIPT_URL="https://gh-proxy.com/https://raw.githubusercontent.com/qljsyph/sbshell/refs/heads/main/debian/menu.sh"
-OPENWRT_MAIN_SCRIPT_URL="https://gh-proxy.com/https://raw.githubusercontent.com/qljsyph/sbshell/refs/heads/main/openwrt/menu.sh"
+DEBIAN_MAIN_SCRIPT_URL="https://raw.githubusercontent.com/Mendex777/sbshell2/refs/heads/main/debian/menu.sh"
+OPENWRT_MAIN_SCRIPT_URL="https://raw.githubusercontent.com/Mendex777/sbshell2/refs/heads/main/openwrt/menu.sh"
  
 # Каталог для загрузки скрипта
 SCRIPT_DIR="/etc/sing-box/scripts"
