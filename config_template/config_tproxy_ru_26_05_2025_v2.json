@@ -49,7 +49,6 @@
     { "tag": "🎙️ Discord", "type": "selector", "outbounds": ["🚀 Node Selection", "🐸 Manual Switch", "➡️ Direct Connection", "🛰️ Proxy Switch"] },
     { "tag": "🌐 Meta", "type": "selector", "outbounds": ["🚀 Node Selection", "🐸 Manual Switch", "➡️ Direct Connection"] },
     { "tag": "🎮 Steam", "type": "selector", "outbounds": ["🚀 Node Selection", "🐸 Manual Switch", "➡️ Direct Connection"] },
-    
     { "tag": "📹 YouTube", "type": "selector", "outbounds": ["🚀 Node Selector", "🐸 Manual Switch", "➡️ Direct Connection"] },
     { "tag": "🤖 OpenAI", "type": "selector", "outbounds": ["🚀 Node Selector", "🐸 Manual Switch", "➡️ Direct Connection"] },
     { "tag": "🍀 Google", "type": "selector", "outbounds": ["🚀 Node Selector", "🐸 Manual Switch", "➡️ Direct Connection"] },
@@ -76,7 +75,6 @@
       {"rule_set": "geosite-custom", "outbound": "🧩 Сustom list"},
       {"rule_set": "geosite-steam", "outbound": "🎮 Steam"},
       {"rule_set": ["geoip-discord", "geosite-discord"], "outbound": "🎙️ Discord"},
-
       {"rule_set": "geosite-chat", "outbound": "🤖 OpenAI"},
       {"rule_set": "geosite-youtube", "outbound": "📹 YouTube"},
       {"rule_set": "geosite-github", "outbound": "👨‍💻 Github"},
@@ -105,7 +103,6 @@
       { "tag": "geosite-apple", "type": "remote", "format": "binary", "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/apple.srs", "download_detour": "➡️ Direct Connection" },
       { "tag": "geosite-microsoft", "type": "remote", "format": "binary", "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/microsoft.srs", "download_detour": "➡️ Direct Connection" },
       { "tag": "geosite-onedrive", "type": "remote", "format": "binary", "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/onedrive.srs", "download_detour": "➡️ Direct Connection" },
-      { "tag": "geosite-geolocation-!cn", "type": "remote", "format": "binary", "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/geolocation-!cn.srs", "download_detour": "➡️ Direct Connection" },
       { "tag": "geosite-private", "type": "remote", "format": "binary", "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/private.srs", "download_detour": "➡️ Direct Connection" },
 
       { "tag": "geoip-discord", "type": "remote", "format": "binary", "url": "https://github.com/Mendex777/sbshell/raw/refs/heads/master/geoip/discord.srs", "download_detour": "➡️ Direct Connection" },
