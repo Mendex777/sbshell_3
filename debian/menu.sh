@@ -21,7 +21,7 @@ sudo mkdir -p "$SCRIPT_DIR"
 sudo chown "$(whoami)":"$(whoami)" "$SCRIPT_DIR"
 
 # Базовый URL для скачивания скриптов
-BASE_URL="https://gh-proxy.com/https://raw.githubusercontent.com/qljsyph/sbshell/refs/heads/main/debian"
+BASE_URL="https://raw.githubusercontent.com/Mendex777/sbshell2/refs/heads/main/debian"
 
 # Список скриптов для загрузки
 SCRIPTS=(
