@@ -1,45 +1,45 @@
 #!/bin/bash
 
-# 定义颜色
+# Определение цветов
 GREEN='\033[0;32m'
 RED='\033[0;31m'
-NC='\033[0m' # 无颜色
+NC='\033[0m' # Без цвета
 
-echo -e "${GREEN}设置开机自启动...${NC}"
-echo "请选择操作(1: 启用自启动, 2: 禁用自启动）"
+echo -e "${GREEN}Настройка автозапуска при старте системы...${NC}"
+echo "Выберите действие (1: Включить автозапуск, 2: Отключить автозапуск)"
 read -rp "(1/2): " autostart_choice
 
 apply_firewall() {
     MODE=$(grep -oP '(?<=^MODE=).*' /etc/sing-box/mode.conf)
     if [ "$MODE" = "TProxy" ]; then
-        echo "应用 TProxy 模式下的防火墙规则..."
+        echo "Применение правил файервола для режима TProxy..."
         bash /etc/sing-box/scripts/configure_tproxy.sh
     elif [ "$MODE" = "TUN" ]; then
-        echo "应用 TUN 模式下的防火墙规则..."
+        echo "Применение правил файервола для режима TUN..."
         bash /etc/sing-box/scripts/configure_tun.sh
     else
-        echo "无效的模式，跳过防火墙规则应用。"
+        echo "Недопустимый режим, пропускаем применение правил файервола."
         exit 1
     fi
 }
 
 case $autostart_choice in
     1)
-        # 检查自启动是否已经开启
+        # Проверка, включён ли уже автозапуск
         if systemctl is-enabled sing-box.service >/dev/null 2>&1 && systemctl is-enabled nftables-singbox.service >/dev/null 2>&1; then
-            echo -e "${GREEN}自启动已经开启，无需操作。${NC}"
-            exit 0  # 返回主菜单
+            echo -e "${GREEN}Автозапуск уже включён, никаких действий не требуется.${NC}"
+            exit 0
         fi
 
-        echo -e "${GREEN}启用自启动...${NC}"
+        echo -e "${GREEN}Включаем автозапуск...${NC}"
 
-        # 删除旧的配置文件以避免重复配置
+        # Удаляем старый файл сервиса, чтобы избежать дублирования
         sudo rm -f /etc/systemd/system/nftables-singbox.service
 
-        # 创建 nftables-singbox.service 文件
+        # Создаём сервис nftables-singbox.service
         sudo bash -c 'cat > /etc/systemd/system/nftables-singbox.service <<EOF
 [Unit]
-Description=Apply nftables rules for Sing-Box
+Description=Применение правил nftables для Sing-Box
 After=network.target
 
 [Service]
@@ -51,65 +51,61 @@ RemainAfterExit=yes
 WantedBy=multi-user.target
 EOF'
 
-        # 修改 sing-box.service 文件
+        # Вносим изменения в sing-box.service, чтобы он зависел от nftables-singbox.service
         sudo bash -c "sed -i '/After=network.target nss-lookup.target network-online.target/a After=nftables-singbox.service' /usr/lib/systemd/system/sing-box.service"
         sudo bash -c "sed -i '/^Requires=/d' /usr/lib/systemd/system/sing-box.service"
-        sudo bash -c "sed -i '/
+        sudo bash -c "sed -i '/\[Unit\]/a Requires=nftables-singbox.service' /usr/lib/systemd/system/sing-box.service"
 
-\[Unit\]
-
-/a Requires=nftables-singbox.service' /usr/lib/systemd/system/sing-box.service"
-
-        # 启用并启动服务
+        # Перезагружаем конфигурацию systemd и включаем сервисы
         sudo systemctl daemon-reload
         sudo systemctl enable nftables-singbox.service sing-box.service
         sudo systemctl start nftables-singbox.service sing-box.service
         cmd_status=$?
 
         if [ "$cmd_status" -eq 0 ]; then
-            echo -e "${GREEN}自启动已成功启用。${NC}"
+            echo -e "${GREEN}Автозапуск успешно включён.${NC}"
         else
-            echo -e "${RED}启用自启动失败。${NC}"
+            echo -e "${RED}Ошибка при включении автозапуска.${NC}"
         fi
         ;;
     2)
-        # 检查自启动是否已经禁用
+        # Проверяем, отключён ли уже автозапуск
         if ! systemctl is-enabled sing-box.service >/dev/null 2>&1 && ! systemctl is-enabled nftables-singbox.service >/dev/null 2>&1; then
-            echo -e "${GREEN}自启动已经禁用，无需操作。${NC}"
-            exit 0  # 返回主菜单
+            echo -e "${GREEN}Автозапуск уже отключён, никаких действий не требуется.${NC}"
+            exit 0
         fi
 
-        echo -e "${RED}禁用自启动...${NC}"
-        
-        # 禁用并停止服务
+        echo -e "${RED}Отключаем автозапуск...${NC}"
+
+        # Отключаем и останавливаем сервисы
         sudo systemctl disable sing-box.service
         sudo systemctl disable nftables-singbox.service
         sudo systemctl stop sing-box.service
         sudo systemctl stop nftables-singbox.service
 
-        # 删除 nftables-singbox.service 文件
+        # Удаляем сервис nftables-singbox.service
         sudo rm -f /etc/systemd/system/nftables-singbox.service
 
-        # 还原 sing-box.service 文件
+        # Восстанавливаем sing-box.service
         sudo bash -c "sed -i '/After=nftables-singbox.service/d' /usr/lib/systemd/system/sing-box.service"
         sudo bash -c "sed -i '/Requires=nftables-singbox.service/d' /usr/lib/systemd/system/sing-box.service"
 
-        # 重新加载 systemd
+        # Перезагружаем конфигурацию systemd
         sudo systemctl daemon-reload
         cmd_status=$?
 
         if [ "$cmd_status" -eq 0 ]; then
-            echo -e "${GREEN}自启动已成功禁用。${NC}"
+            echo -e "${GREEN}Автозапуск успешно отключён.${NC}"
         else
-            echo -e "${RED}禁用自启动失败。${NC}"
+            echo -e "${RED}Ошибка при отключении автозапуска.${NC}"
         fi
         ;;
     *)
-        echo -e "${RED}无效的选择${NC}"
+        echo -e "${RED}Неверный выбор.${NC}"
         ;;
 esac
 
-# 调用应用防火墙规则的函数
+# Если скрипт вызван с параметром apply_firewall, вызываем функцию применения правил
 if [ "$1" = "apply_firewall" ]; then
     apply_firewall
 fi
