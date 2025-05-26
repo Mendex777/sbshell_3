@@ -5,9 +5,9 @@ BACKUP_DIR="/tmp/sing-box/ui_backup"           # Папка для бэкапо�
 TEMP_DIR="/tmp/sing-box-ui"                     # Временная папка для загрузки UI
 
 # URL для загрузки разных UI-панелей
-ZASHBOARD_URL="https://gh-proxy.com/https://github.com/Zephyruso/zashboard/archive/refs/heads/gh-pages.zip"
-METACUBEXD_URL="https://gh-proxy.com/https://github.com/MetaCubeX/metacubexd/archive/refs/heads/gh-pages.zip"
-YACD_URL="https://gh-proxy.com/https://github.com/MetaCubeX/Yacd-meta/archive/refs/heads/gh-pages.zip"
+ZASHBOARD_URL="https://github.com/Zephyruso/zashboard/archive/refs/heads/gh-pages.zip"
+METACUBEXD_URL="https://github.com/MetaCubeX/metacubexd/archive/refs/heads/gh-pages.zip"
+YACD_URL="https://github.com/MetaCubeX/Yacd-meta/archive/refs/heads/gh-pages.zip"
 
 # Создаем папки для бэкапов и временные папки
 mkdir -p "$BACKUP_DIR"
@@ -32,7 +32,7 @@ unzip_with_busybox() {
 # Получение URL загрузки UI из конфигурационного файла
 get_download_url() {
     CONFIG_FILE="/etc/sing-box/config.json"
-    DEFAULT_URL="https://gh-proxy.com/https://github.com/Zephyruso/zashboard/archive/refs/heads/gh-pages.zip"
+    DEFAULT_URL="https://github.com/Zephyruso/zashboard/archive/refs/heads/gh-pages.zip"
     
     if [ -f "$CONFIG_FILE" ]; then
         URL=$(grep -oP '(?<="external_ui_download_url": ")[^"]*' "$CONFIG_FILE")
@@ -140,7 +140,7 @@ setup_auto_update_ui() {
 #!/bin/bash
 
 CONFIG_FILE="/etc/sing-box/config.json"
-DEFAULT_URL="https://gh-proxy.com/https://github.com/Zephyruso/zashboard/archive/refs/heads/gh-pages.zip"
+DEFAULT_URL="https://github.com/Zephyruso/zashboard/archive/refs/heads/gh-pages.zip"
 URL=\$(grep -oP '(?<="external_ui_download_url": ")[^"]*' "\$CONFIG_FILE")
 URL="\${URL:-\$DEFAULT_URL}"
 
