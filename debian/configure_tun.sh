@@ -1,33 +1,33 @@
 #!/bin/bash
 
-# 配置参数
+# Параметры конфигурации
 PROXY_FWMARK=1
 PROXY_ROUTE_TABLE=100
 INTERFACE=$(ip route show default | awk '/default/ {print $5}')
 
-# 读取当前模式
+# Чтение текущего режима
 MODE=$(grep -oP '(?<=^MODE=).*' /etc/sing-box/mode.conf)
 
-# 清理 TProxy 模式的防火墙规则
+# Очистка правил файрвола для режима TProxy
 clearTProxyRules() {
     nft list table inet sing-box >/dev/null 2>&1 && nft delete table inet sing-box
     ip rule del fwmark $PROXY_FWMARK lookup $PROXY_ROUTE_TABLE 2>/dev/null
     ip route del local default dev "$INTERFACE" table $PROXY_ROUTE_TABLE 2>/dev/null
-    echo "清理 TProxy 模式的防火墙规则"
+    echo "Очистка правил файрвола для режима TProxy"
 }
 
 if [ "$MODE" = "TUN" ]; then
-    echo "应用 TUN 模式下的防火墙规则..."
+    echo "Применение правил файрвола для режима TUN..."
 
-    # 清理 TProxy 模式的防火墙规则
+    # Очистка правил файрвола для режима TProxy
     clearTProxyRules
 
-    # 确保目录存在
+    # Убедиться, что каталог существует
     sudo mkdir -p /etc/sing-box/tun
 
-    # 设置 TUN 模式的具体配置
+    # Настройка конкретной конфигурации для режима TUN
     cat > /etc/sing-box/tun/nftables.conf <<EOF
-# 清除现有的 nftables 规则并应用新的配置
+# Очистка существующих правил nftables и применение новой конфигурации
 flush ruleset
 table inet filter {
     chain input { type filter hook input priority 0; policy accept; }
@@ -36,13 +36,13 @@ table inet filter {
 }
 EOF
 
-    # 应用防火墙规则
+    # Применение правил файрвола
     nft -f /etc/sing-box/tun/nftables.conf
 
-    # 持久化防火墙规则
+    # Сохранение правил файрвола
     nft list ruleset > /etc/nftables.conf
 
-    echo "TUN 模式的防火墙规则已应用。"
+    echo "Правила файрвола для режима TUN применены."
 else
-    echo "当前模式不是 TUN 模式，跳过防火墙规则配置。" >/dev/null 2>&1
+    echo "Текущий режим не TUN, пропуск настройки правил файрвола." >/dev/null 2>&1
 fi
