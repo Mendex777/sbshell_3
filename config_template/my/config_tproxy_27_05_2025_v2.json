@@ -23,7 +23,7 @@
 
   "dns": {
     "servers": [
-      {"tag": "dns_direct", "address": "223.5.5.5", "address_strategy": "ipv4_only", "strategy": "ipv4_only", "detour": "➡️ Direct Connection"},
+      {"tag": "dns_direct", "address": "192.168.1.1", "address_strategy": "ipv4_only", "strategy": "ipv4_only", "detour": "➡️ Direct Connection"},
       {"tag": "dns_proxy", "address": "tls://8.8.8.8", "address_strategy": "ipv4_only", "strategy": "ipv4_only", "detour": "🚀 Node Selector"}
     ],
     "rules": [
