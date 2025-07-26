@@ -10,17 +10,8 @@ echo "Выберите действие (1: Включить автозапус�
 read -rp "(1/2): " autostart_choice
 
 apply_firewall() {
-    MODE=$(grep -oP '(?<=^MODE=).*' /etc/sing-box/mode.conf)
-    if [ "$MODE" = "TProxy" ]; then
-        echo "Применение правил файервола для режима TProxy..."
-        bash /etc/sing-box/scripts/configure_tproxy.sh
-    elif [ "$MODE" = "TUN" ]; then
-        echo "Применение правил файервола для режима TUN..."
-        bash /etc/sing-box/scripts/configure_tun.sh
-    else
-        echo "Недопустимый режим, пропускаем применение правил файервола."
-        exit 1
-    fi
+    echo "Применение правил файервола для режима TProxy..."
+    bash /etc/sing-box/scripts/configure_tproxy.sh
 }
 
 case $autostart_choice in

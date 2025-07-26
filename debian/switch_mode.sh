@@ -22,28 +22,9 @@ function stop_singbox() {
     fi
 }
 
-# Логика переключения режима
-echo "Начинается переключение режима... Пожалуйста, следуйте инструкциям."
+# Переключение на режим TProxy
+echo "Переключение на режим TProxy..."
 
-while true; do
-    # Выбор режима
-    read -rp "Выберите режим (1: режим TProxy, 2: режим TUN): " mode_choice
-
-    case $mode_choice in
-        1)
-            stop_singbox
-            echo "MODE=TProxy" | sudo tee /etc/sing-box/mode.conf > /dev/null
-            echo -e "${GREEN}Текущий выбранный режим: режим TProxy${NC}"
-            break
-            ;;
-        2)
-            stop_singbox
-            echo "MODE=TUN" | sudo tee /etc/sing-box/mode.conf > /dev/null
-            echo -e "${GREEN}Текущий выбранный режим: режим TUN${NC}"
-            break
-            ;;
-        *)
-            echo -e "${RED}Неверный выбор, пожалуйста, введите снова.${NC}"
-            ;;
-    esac
-done
+stop_singbox
+echo "MODE=TProxy" | sudo tee /etc/sing-box/mode.conf > /dev/null
+echo -e "${GREEN}Режим TProxy установлен${NC}"

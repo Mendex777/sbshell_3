@@ -11,7 +11,7 @@ SCRIPT_DIR="/etc/sing-box/scripts"
 TEMP_DIR="/tmp/sing-box"
 
 # Базовый URL для скачивания скриптов
-BASE_URL="https://raw.githubusercontent.com/Mendex777/sbshell2/refs/heads/main/debian"
+BASE_URL="https://raw.githubusercontent.com/Mendex777/sbshell_3/refs/heads/main/debian"
 
 # URL скрипта меню для первичной загрузки
 MENU_SCRIPT_URL="$BASE_URL/menu.sh"
@@ -85,7 +85,7 @@ SCRIPTS=(
     "manual_update.sh"
     "auto_update.sh"
     "configure_tproxy.sh"
-    "configure_tun.sh"
+
     "start_singbox.sh"
     "stop_singbox.sh"
     "clean_nft.sh"

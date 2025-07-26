@@ -9,8 +9,8 @@ NC='\033[0m' # Без цвета
 MANUAL_FILE="/etc/sing-box/manual.conf"
 DEFAULTS_FILE="/etc/sing-box/defaults.conf"
 
-# Получение текущего режима
-MODE=$(grep -oP '(?<=^MODE=).*' /etc/sing-box/mode.conf)
+# Режим по умолчанию - TProxy
+MODE="TProxy"
 
 # Функция для запроса параметров у пользователя
 prompt_user_input() {
@@ -28,16 +28,8 @@ prompt_user_input() {
 
     read -rp "Введите адрес конфигурационного файла (нажмите Enter для значения по умолчанию, можно оставить пустым): " TEMPLATE_URL
     if [ -z "$TEMPLATE_URL" ]; then
-        if [ "$MODE" = "TProxy" ]; then
-            TEMPLATE_URL=$(grep TPROXY_TEMPLATE_URL "$DEFAULTS_FILE" 2>/dev/null | cut -d'=' -f2-)
-            echo -e "${CYAN}Используется адрес конфигурации TProxy по умолчанию: $TEMPLATE_URL${NC}"
-        elif [ "$MODE" = "TUN" ]; then
-            TEMPLATE_URL=$(grep TUN_TEMPLATE_URL "$DEFAULTS_FILE" 2>/dev/null | cut -d'=' -f2-)
-            echo -e "${CYAN}Используется адрес конфигурации TUN по умолчанию: $TEMPLATE_URL${NC}"
-        else
-            echo -e "${RED}Неизвестный режим: $MODE${NC}"
-            exit 1
-        fi
+        TEMPLATE_URL=$(grep TPROXY_TEMPLATE_URL "$DEFAULTS_FILE" 2>/dev/null | cut -d'=' -f2-)
+        echo -e "${CYAN}Используется адрес конфигурации TProxy по умолчанию: $TEMPLATE_URL${NC}"
     fi
 }
 

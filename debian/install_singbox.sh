@@ -19,27 +19,10 @@ else
     echo "Обновляем список пакетов, пожалуйста, подождите..."
     sudo apt-get update -qq > /dev/null 2>&1
 
-    # Выбор версии для установки: стабильная или бета
-    while true; do
-        read -rp "Выберите версию для установки (1: стабильная, 2: бета): " version_choice
-        case $version_choice in
-            1)
-                echo "Устанавливаем стабильную версию..."
-                sudo apt-get install sing-box -yq > /dev/null 2>&1
-                echo "Установка завершена"
-                break
-                ;;
-            2)
-                echo "Устанавливаем бета-версию..."
-                sudo apt-get install sing-box-beta -yq > /dev/null 2>&1
-                echo "Установка завершена"
-                break
-                ;;
-            *)
-                echo -e "${RED}Неверный выбор, пожалуйста, введите 1 или 2.${NC}"
-                ;;
-        esac
-    done
+    # Установка стабильной версии
+    echo "Устанавливаем стабильную версию..."
+    sudo apt-get install sing-box -yq > /dev/null 2>&1
+    echo "Установка завершена"
 
     # Проверка успешности установки
     if command -v sing-box &> /dev/null; then

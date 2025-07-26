@@ -12,21 +12,12 @@ SCRIPT_DIR="/etc/sing-box/scripts"
 
 # Проверка текущего режима работы
 check_mode() {
-    if nft list chain inet sing-box prerouting_tproxy &>/dev/null || nft list chain inet sing-box output_tproxy &>/dev/null; then
-        echo "Режим TProxy"
-    else
-        echo "Режим TUN"
-    fi
+    echo "Режим TProxy"
 }
 
 # Применение правил файрвола
 apply_firewall() {
-    MODE=$(grep -oP '(?<=^MODE=).*' /etc/sing-box/mode.conf)
-    if [ "$MODE" = "TProxy" ]; then
-        bash "$SCRIPT_DIR/configure_tproxy.sh"
-    elif [ "$MODE" = "TUN" ]; then
-        bash "$SCRIPT_DIR/configure_tun.sh"
-    fi
+    bash "$SCRIPT_DIR/configure_tproxy.sh"
 }
 
 # Запуск службы sing-box

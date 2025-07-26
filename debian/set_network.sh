@@ -24,6 +24,18 @@ INTERFACE=$(ip -br link show | awk '{print $1}' | grep -v "lo" | head -n 1)
 
 echo -e "${YELLOW}Обнаружен сетевой интерфейс: $INTERFACE${NC}"
 
+# Определение системы управления сетью
+if [ -d "/etc/netplan" ] && ls /etc/netplan/*.yaml >/dev/null 2>&1; then
+    NETWORK_MANAGER="netplan"
+    echo -e "${YELLOW}Обнаружена система netplan${NC}"
+elif [ -f "/etc/network/interfaces" ]; then
+    NETWORK_MANAGER="interfaces"
+    echo -e "${YELLOW}Обнаружена система /etc/network/interfaces${NC}"
+else
+    echo -e "${RED}Не удалось определить систему управления сетью${NC}"
+    exit 1
+fi
+
 while true; do
     # Запрос у пользователя статического IP, шлюза и DNS серверов
     read -rp "Введите статический IP-адрес: " IP_ADDRESS
@@ -37,12 +49,35 @@ while true; do
 
     read -rp "Подтвердить введённые данные? (y/n): " confirm_choice
     if [[ "$confirm_choice" =~ ^[Yy]$ ]]; then
-        # Пути к конфигурационным файлам
-        INTERFACES_FILE="/etc/network/interfaces"
-        RESOLV_CONF_FILE="/etc/resolv.conf"
+        if [ "$NETWORK_MANAGER" = "netplan" ]; then
+            # Конфигурация для netplan
+            NETPLAN_FILE="/etc/netplan/01-netcfg.yaml"
+            
+            # Создание конфигурации netplan
+            cat > $NETPLAN_FILE <<EOL
+network:
+  version: 2
+  renderer: networkd
+  ethernets:
+    $INTERFACE:
+      dhcp4: false
+      addresses:
+        - $IP_ADDRESS/24
+      gateway4: $GATEWAY
+      nameservers:
+        addresses: [$(echo $DNS_SERVERS | sed 's/ /, /g')]
+EOL
+            
+            # Применение конфигурации netplan
+            sudo netplan apply
+            
+        else
+            # Конфигурация для /etc/network/interfaces
+            INTERFACES_FILE="/etc/network/interfaces"
+            RESOLV_CONF_FILE="/etc/resolv.conf"
 
-        # Обновление сетевой конфигурации
-        cat > $INTERFACES_FILE <<EOL
+            # Обновление сетевой конфигурации
+            cat > $INTERFACES_FILE <<EOL
 # Сетевой интерфейс loopback
 auto lo
 iface lo inet loopback
@@ -55,14 +90,15 @@ iface $INTERFACE inet static
     gateway $GATEWAY
 EOL
 
-        # Обновление файла resolv.conf с DNS серверами
-        echo > $RESOLV_CONF_FILE
-        for dns in $DNS_SERVERS; do
-            echo "nameserver $dns" >> $RESOLV_CONF_FILE
-        done
+            # Обновление файла resolv.conf с DNS серверами
+            echo > $RESOLV_CONF_FILE
+            for dns in $DNS_SERVERS; do
+                echo "nameserver $dns" >> $RESOLV_CONF_FILE
+            done
 
-        # Перезапуск сетевого сервиса
-        sudo systemctl restart networking
+            # Перезапуск сетевого сервиса
+            sudo systemctl restart networking
+        fi
 
         echo -e "${GREEN}Статический IP и DNS успешно настроены!${NC}"
         break

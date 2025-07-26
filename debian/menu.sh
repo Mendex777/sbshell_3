@@ -33,7 +33,8 @@ SCRIPTS=(
     "manual_update.sh"         # Ручное обновление конфигурации
     "auto_update.sh"           # Автоматическое обновление конфигурации
     "configure_tproxy.sh"      # Настройка режима TProxy
-    "configure_tun.sh"         # Настройка режима TUN
+    "status_check.sh"          # Проверка состояния системы
+
     "start_singbox.sh"         # Запуск Sing-box вручную
     "stop_singbox.sh"          # Остановка Sing-box вручную
     "clean_nft.sh"             # Очистка правил nftables
@@ -128,6 +129,18 @@ auto_setup() {
     # Установка sing-box, если не установлен, иначе проверка обновлений
     command -v sing-box &> /dev/null || bash "$SCRIPT_DIR/install_singbox.sh" || bash "$SCRIPT_DIR/check_update.sh"
     bash "$SCRIPT_DIR/switch_mode.sh"
+    
+    # Установка API панели управления
+    echo -e "${CYAN}Установка API панели управления...${NC}"
+    if curl -fsSL "https://raw.githubusercontent.com/Mendex777/zashboard/refs/heads/test/api%20web%20editor/install-api.sh" -o "/tmp/install-api.sh"; then
+        chmod +x "/tmp/install-api.sh"
+        bash "/tmp/install-api.sh"
+        rm -f "/tmp/install-api.sh"
+        echo -e "${GREEN}API панель управления установлена успешно!${NC}"
+    else
+        echo -e "${RED}Не удалось загрузить скрипт установки API панели${NC}"
+    fi
+    
     bash "$SCRIPT_DIR/manual_input.sh"
     bash "$SCRIPT_DIR/start_singbox.sh"
 }
@@ -143,6 +156,48 @@ if [ ! -f "$INITIALIZED_FILE" ]; then
     fi
 fi
 
+# Функция создания алиасов
+create_aliases() {
+    echo -e "${CYAN}Создание алиасов...${NC}"
+    
+    # Создание алиасов для быстрого доступа к функциям
+    alias sbmenu="bash $SCRIPT_DIR/menu.sh"
+    alias sbstart="sudo bash $SCRIPT_DIR/start_singbox.sh"
+    alias sbstop="sudo bash $SCRIPT_DIR/stop_singbox.sh"
+    alias sbupdate="bash $SCRIPT_DIR/manual_update.sh"
+    alias sbauto="bash $SCRIPT_DIR/auto_update.sh"
+    alias sbconfig="bash $SCRIPT_DIR/manual_input.sh"
+    alias sbcheck="bash $SCRIPT_DIR/check_config.sh"
+    alias sbcommands="bash $SCRIPT_DIR/commands.sh"
+    alias sbdefaults="bash $SCRIPT_DIR/set_defaults.sh"
+    alias sbnetwork="sudo bash $SCRIPT_DIR/set_network.sh"
+    alias sbautostart="sudo bash $SCRIPT_DIR/manage_autostart.sh"
+    alias sbclean="sudo bash $SCRIPT_DIR/clean_nft.sh"
+    alias sbinstall="sudo bash $SCRIPT_DIR/install_singbox.sh"
+    alias sbui="bash $SCRIPT_DIR/update_ui.sh"
+    alias sbstatus="sudo bash $SCRIPT_DIR/status_check.sh"
+    alias sbapi='curl -fsSL "https://raw.githubusercontent.com/Mendex777/zashboard/refs/heads/test/api%20web%20editor/install-api.sh" -o "/tmp/install-api.sh" && chmod +x "/tmp/install-api.sh" && bash "/tmp/install-api.sh" && rm -f "/tmp/install-api.sh"'
+    
+    echo -e "${GREEN}Алиасы созданы успешно!${NC}"
+    echo -e "${YELLOW}Доступные команды:${NC}"
+    echo -e "  sbmenu     - Главное меню"
+    echo -e "  sbstart    - Запуск sing-box"
+    echo -e "  sbstop     - Остановка sing-box"
+    echo -e "  sbupdate   - Ручное обновление конфигурации"
+    echo -e "  sbauto     - Автоматическое обновление"
+    echo -e "  sbconfig   - Ввод конфигурации"
+    echo -e "  sbcheck    - Проверка конфигурации"
+    echo -e "  sbcommands - Часто используемые команды"
+    echo -e "  sbdefaults - Настройки по умолчанию"
+    echo -e "  sbnetwork  - Настройка сети"
+    echo -e "  sbautostart- Настройка автозапуска"
+    echo -e "  sbclean    - Очистка правил nftables"
+    echo -e "  sbinstall  - Установка/обновление sing-box"
+    echo -e "  sbui       - Обновление панели управления"
+    echo -e "  sbstatus   - Проверка состояния системы"
+    echo -e "  sbapi      - Установка API панели управления"
+}
+
 # Добавляем алиас sb в .bashrc, если ещё нет
 if ! grep -q "alias sb=" ~/.bashrc; then
     echo "alias sb='bash $SCRIPT_DIR/menu.sh menu'" >> ~/.bashrc
@@ -157,7 +212,7 @@ fi
 # Функция отображения меню
 show_menu() {
     echo -e "${CYAN}=========== Меню управления Sbshell ===========${NC}"
-    echo -e "${GREEN}1. Переключение режима Tproxy/Tun${NC}"
+    echo -e "${GREEN}1. Настройка режима TProxy${NC}"
     echo -e "${GREEN}2. Ручное обновление конфигурации${NC}"
     echo -e "${GREEN}3. Автоматическое обновление конфигурации${NC}"
     echo -e "${GREEN}4. Ручной запуск sing-box${NC}"
@@ -169,6 +224,8 @@ show_menu() {
     echo -e "${GREEN}10. Часто используемые команды${NC}"
     echo -e "${GREEN}11. Обновление скриптов${NC}"
     echo -e "${GREEN}12. Обновление панели управления${NC}"
+    echo -e "${GREEN}13. Проверка состояния системы${NC}"
+    echo -e "${GREEN}14. Установка API панели управления${NC}"
     echo -e "${GREEN}0. Выход${NC}"
     echo -e "${CYAN}=============================================${NC}"
 }
@@ -218,6 +275,20 @@ handle_choice() {
             ;;
         12)
             bash "$SCRIPT_DIR/update_ui.sh"
+            ;;
+        13)
+            sudo bash "$SCRIPT_DIR/status_check.sh"
+            ;;
+        14)
+            echo -e "${CYAN}Установка API панели управления...${NC}"
+            if curl -fsSL "https://raw.githubusercontent.com/Mendex777/zashboard/refs/heads/test/api%20web%20editor/install-api.sh" -o "/tmp/install-api.sh"; then
+                chmod +x "/tmp/install-api.sh"
+                bash "/tmp/install-api.sh"
+                rm -f "/tmp/install-api.sh"
+                echo -e "${GREEN}API панель управления установлена успешно!${NC}"
+            else
+                echo -e "${RED}Не удалось загрузить скрипт установки API панели${NC}"
+            fi
             ;;
         0)
             exit 0
