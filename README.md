@@ -21,7 +21,7 @@ Sbshell — это вспомогательный скрипт для офици
 ## Однострочный установочный скрипт: (Убедитесь, что у вас установлены curl и bash)
 
 ```
-bash <(curl -sL https://raw.githubusercontent.com/Mendex777/sbshell2/refs/heads/main/sbshall.sh)
+bash <(curl -sL https://raw.githubusercontent.com/Mendex777/sbshell_3/refs/heads/main/sbshall.sh)
 ```
 - После инициализации введите "**sb**" для входа в меню.
 - Поддерживаемые системы: Debian/Ubuntu/Armbian.  
