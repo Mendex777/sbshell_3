@@ -2,9 +2,9 @@
 ⚠️⚠️Пожалуйста, обратите внимание: запрещено распространять на территорию материкового Китая. Соблюдайте местные законы.⚠️⚠️  
 Sbshell — это вспомогательный скрипт для официального sing-box, созданный для устранения неудобств при его использовании:
 
-- **Поддержка систем**: Поддерживаются Debian/Ubuntu/Armbian.
+- **Поддержка систем**: Поддерживаются Debian/Ubuntu/Armbian и OpenWrt.
 - **Вспомогательный запуск**: Обеспечивает работу sing-box в виде официального «голого ядра», с акцентом на минимализм и производительность.
-- **Режим TProxy**: Использует режим TProxy для прозрачного проксирования трафика.
+- **Поддержка двух режимов**: Совместим с режимами TUN и TProxy, можно переключаться в один клик — гибкость под любые задачи.
 - **Управление версиями**: Поддержка переключения между стабильной и тестовой версией ядра в один клик, автообновление до последней версии — быстро и удобно.
 - **Гибкая настройка**: Возможность вручную ввести адрес бэкенда, ссылку на подписку или конфигурационный файл, с установкой значений по умолчанию — повышает удобство.
 - **Управление подписками**: Поддержка ручного обновления и автоматического обновления по расписанию, подписки и конфигурации всегда актуальны.
@@ -16,15 +16,18 @@ Sbshell — это вспомогательный скрипт для офици
 
 ## Поддержка устройств:
 
-В настоящее время поддерживаются Debian/Ubuntu/Armbian!
+В настоящее время поддерживаются Debian/Ubuntu/Armbian и OpenWrt!
 
 ## Однострочный установочный скрипт: (Убедитесь, что у вас установлены curl и bash)
 
 ```
-bash <(curl -sL https://raw.githubusercontent.com/Mendex777/sbshell_3/refs/heads/main/sbshall.sh)
+bash <(curl -sL https://raw.githubusercontent.com/Mendex777/sbshell2/refs/heads/main/sbshall.sh)
+```
+```
+bash <(curl -sL https://raw.githubusercontent.com/Mendex777/sbshell2/refs/heads/main/sbshall_auto_install.sh)
 ```
 - После инициализации введите "**sb**" для входа в меню.
-- Поддерживаемые системы: Debian/Ubuntu/Armbian.  
+- Поддерживаемые системы: Debian/Ubuntu/Armbian/OpenWrt.  
 - Брандмауэр: поддерживается только nftables, iptables не поддерживается.
 
 ### Скрипт для автоматического отображения информации о системе:
@@ -41,10 +44,11 @@ bash <(curl -sL https://gh-proxy.com/https://raw.githubusercontent.com/qljsyph/D
 tproxy:  
 https://gh-proxy.com/https://raw.githubusercontent.com/qljsyph/sbshell/refs/heads/main/config_template/config_tproxy.json  
 
-  
+tun:  
+https://gh-proxy.com/https://raw.githubusercontent.com/qljsyph/sbshell/refs/heads/main/config_template/config_tun.json  
 
 ## Другие вопросы:
 
-**Пожалуйста, смотрите [wiki](https://github.com/qljsyph/sbshell/wiki)**
+**Пожалуйста, смотрите [wiki](https://github.com/qljsyph/sbshell/wiki)**  
 
 
