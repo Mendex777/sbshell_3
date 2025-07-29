@@ -24,6 +24,18 @@ if ! grep -qi 'ubuntu' /etc/os-release; then
     exit 1
 fi
 
+<<<<<<< HEAD
+=======
+# Проверка версии Ubuntu (24.04 или выше)
+UBUNTU_VERSION=$(grep 'VERSION_ID' /etc/os-release | cut -d'"' -f2)
+if [[ "$UBUNTU_VERSION" < "24.04" ]]; then
+    echo -e "${RED}Ошибка: Требуется Ubuntu 24.04 или выше.${NC}"
+    echo -e "${YELLOW}Текущая версия: $UBUNTU_VERSION${NC}"
+    echo -e "${YELLOW}Пожалуйста, обновите систему до Ubuntu 24.04 или выше.${NC}"
+    exit 1
+fi
+
+>>>>>>> a1916d6 (add auto install)
 # Проверка прав root
 if [ "$EUID" -ne 0 ]; then
     echo -e "${RED}Ошибка: Скрипт должен запускаться от имени root.${NC}"
