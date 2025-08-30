@@ -480,6 +480,9 @@ fi
 # Применяем правила firewall (возвращаем правила)
 nft -f /etc/sing-box/nft/nftables.conf
 
+# Изменение прав на каталог /etc/sing-box
+sudo chown -R sing-box:sing-box /etc/sing-box
+
 # Перезапуск sing-box и проверка статуса
 sudo systemctl restart sing-box
 
