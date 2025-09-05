@@ -424,10 +424,10 @@ cat > /etc/sing-box/rules/custom_list.json <<EOF
         "byteoversea.com",
         "bytednsdoc.com",
         "bytelemon.com",
-	"exp-tas.com",
-	"trae.ai",
-	"trae.com.cn",
-	"mchost.guru",
+        "exp-tas.com",
+        "trae.ai",
+        "trae.com.cn",
+        "mchost.guru",
 
 //huggingface.co
         "huggingface.co",
