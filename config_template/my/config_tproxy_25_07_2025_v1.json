@@ -66,7 +66,7 @@
     { "tag": "🍏 Apple", "type": "selector", "outbounds": ["🚀 Node Selection", "🐸 Manual Switch", "➡️ Direct Connection", "🇷🇺 Russia Nodes", "🇩🇪 Germany Nodes", "🇪🇪 Estonia Nodes", "🇺🇸 US Nodes", "🇫🇮 Finland Nodes", "🇫🇷 France Nodes", "🇸🇪 Sweden Nodes", "⚡️ High-Speed Nodes"] },
     { "tag": "🐸 Manual Switch", "type": "selector", "outbounds": ["{all}"] },
 
-    { "tag": "🇷🇺 Russia Nodes", "type": "selector", "outbounds": ["🐸 Manual Switch", "{all}"], "filter": [{ "action": "include", "keywords": ["🇷🇺|RU|ru|俄|俄罗斯|Russia|Russian|Россия"] }] },
+    { "tag": "🇷🇺 Russia Nodes", "type": "selector", "outbounds": ["🐸 Manual Switch", "{all}"], "filter": [{ "action": "include", "keywords": ["\\b(🇷🇺|RU|ru|俄|俄罗斯|Russia|Russian|Россия)\\b"] }] },
     { "tag": "🇩🇪 Germany Nodes", "type": "selector", "outbounds": ["🐸 Manual Switch", "{all}"], "filter": [{ "action": "include", "keywords": ["🇩🇪|DE|de|Germany|德国|德|Германия"] }] },
     { "tag": "🇪🇪 Estonia Nodes", "type": "selector", "outbounds": ["🐸 Manual Switch", "{all}"], "filter": [{ "action": "include", "keywords": ["🇪🇪|EE|ee|Estonia|Эстония|爱沙尼亚"] }] },
     { "tag": "🇺🇸 US Nodes", "type": "selector", "outbounds": ["🐸 Manual Switch", "{all}"], "filter": [{ "action": "include", "keywords": ["\\b(🇺🇸|US|us|United States|USA|美国|美|США)\\b"] }] },
