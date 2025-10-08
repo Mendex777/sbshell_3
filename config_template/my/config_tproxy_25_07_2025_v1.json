@@ -30,7 +30,7 @@
       {"outbound": "any", "server": "dns_direct", "disable_cache": true},
       {"clash_mode": "Direct", "server": "dns_direct"},
       {"clash_mode": "Global", "server": "dns_proxy"},
-      {"rule_set": ["geosite-custom", "geosite-discord", "geosite-meta", "geosite-chat", "geosite-youtube"], "server": "dns_proxy"},
+      {"rule_set": ["geosite-custom", "geosite-discord", "geosite-meta", "geosite-chat", "geosite-whatsapp", "geosite-youtube"], "server": "dns_proxy"},
       {"rule_set": ["geosite-steam", "geosite-google", "geosite-github", "geosite-telegram", "geosite-tiktok", "geosite-netflix", "geosite-apple", "geosite-microsoft", "geosite-onedrive"], "server": "dns_proxy"}
     ],
     "final": "dns_direct",
@@ -52,6 +52,7 @@
     { "tag": "🎙️ Discord", "type": "selector", "outbounds": ["🚀 Node Selection", "🐸 Manual Switch", "➡️ Direct Connection", "🇷🇺 Russia Nodes", "🇩🇪 Germany Nodes", "🇪🇪 Estonia Nodes", "🇺🇸 US Nodes", "🇫🇮 Finland Nodes", "🇫🇷 France Nodes", "🇸🇪 Sweden Nodes", "⚡️ High-Speed Nodes"] },
     { "tag": "🌐 Meta", "type": "selector", "outbounds": ["🚀 Node Selection", "🐸 Manual Switch", "➡️ Direct Connection", "🇷🇺 Russia Nodes", "🇩🇪 Germany Nodes", "🇪🇪 Estonia Nodes", "🇺🇸 US Nodes", "🇫🇮 Finland Nodes", "🇫🇷 France Nodes", "🇸🇪 Sweden Nodes", "⚡️ High-Speed Nodes"] },
     { "tag": "🎮 Steam", "type": "selector", "outbounds": ["🚀 Node Selection", "🐸 Manual Switch", "➡️ Direct Connection", "🇷🇺 Russia Nodes", "🇩🇪 Germany Nodes", "🇪🇪 Estonia Nodes", "🇺🇸 US Nodes", "🇫🇮 Finland Nodes", "🇫🇷 France Nodes", "🇸🇪 Sweden Nodes", "⚡️ High-Speed Nodes"] },
+    { "tag": "💬 WhatsApp", "type": "selector", "outbounds": ["🚀 Node Selection", "🐸 Manual Switch", "➡️ Direct Connection", "🇷🇺 Russia Nodes", "🇩🇪 Germany Nodes", "🇪🇪 Estonia Nodes", "🇺🇸 US Nodes", "🇫🇮 Finland Nodes", "🇫🇷 France Nodes", "🇸🇪 Sweden Nodes", "⚡️ High-Speed Nodes"] },
 
     { "tag": "📹 YouTube", "type": "selector", "outbounds": ["🚀 Node Selection", "🐸 Manual Switch", "➡️ Direct Connection", "🇷🇺 Russia Nodes", "🇩🇪 Germany Nodes", "🇪🇪 Estonia Nodes", "🇺🇸 US Nodes", "🇫🇮 Finland Nodes", "🇫🇷 France Nodes", "🇸🇪 Sweden Nodes", "⚡️ High-Speed Nodes"] },
     { "tag": "🤖 OpenAI", "type": "selector", "outbounds": ["🚀 Node Selection", "🐸 Manual Switch", "➡️ Direct Connection", "🇷🇺 Russia Nodes", "🇩🇪 Germany Nodes", "🇪🇪 Estonia Nodes", "🇺🇸 US Nodes", "🇫🇮 Finland Nodes", "🇫🇷 France Nodes", "🇸🇪 Sweden Nodes", "⚡️ High-Speed Nodes"] },
@@ -91,6 +92,7 @@
       {"rule_set": "geosite-custom", "outbound": "🧩 Сustom list"},
       {"rule_set": "geosite-meta", "outbound": "🌐 Meta"},
       {"rule_set": "geosite-steam", "outbound": "🎮 Steam"},
+      {"rule_set": "geosite-whatsapp", "outbound": "💬 WhatsApp"},
       {"rule_set": ["geoip-discord", "geosite-discord"], "outbound": "🎙️ Discord"},
       {"rule_set": "geosite-chat", "outbound": "🤖 OpenAI"},
       {"rule_set": "geosite-youtube", "outbound": "📹 YouTube"},
@@ -109,6 +111,7 @@
       { "tag": "geosite-discord", "type": "remote", "format": "binary", "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/discord.srs", "download_detour": "➡️ Direct Connection" },
       { "tag": "geosite-meta", "type": "remote", "format": "binary", "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/meta.srs", "download_detour": "➡️ Direct Connection" },
       { "tag": "geosite-steam", "type": "remote", "format": "binary", "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/steam.srs", "download_detour": "➡️ Direct Connection" },
+      { "tag": "geosite-whatsapp", "type": "remote", "format": "binary", "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/refs/heads/sing/geo/geosite/whatsapp.srs", "download_detour": "➡️ Direct Connection" },
 
       { "tag": "geosite-chat", "type": "remote", "format": "binary", "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/category-ai-!cn.srs", "download_detour": "➡️ Direct Connection" },
       { "tag": "geosite-youtube", "type": "remote", "format": "binary", "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/sing/geo/geosite/youtube.srs", "download_detour": "➡️ Direct Connection" },
